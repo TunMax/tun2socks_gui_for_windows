@@ -1,2 +1,2 @@
-# tun_gui_for_windows
+# TunMax
 A simple gui for tun on windows.
