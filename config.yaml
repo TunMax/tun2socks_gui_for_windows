@@ -1,0 +1,23 @@
+# 与Tun设备出口对接的代理地址，支持：socks5、shadowsocks
+# 示例：socks5://127.0.0.1:10808、ss://chacha20:password@104.67.88.90:1080
+Proxy: socks5://127.0.0.1:10808
+
+# 实际代理服务器的域名或IP，可以填写多个，如为域名程序会自动解析其IP地址。
+# 该项用于添加路由表直连规则。
+Server: 
+  - yourserver.com
+  - 104.67.88.90
+
+# 本地路由器的网关，即登陆路由器管理页面的IP地址。
+Gateway: 192.168.1.1
+
+# ！！！因未解决添加路由表性能问题，该项暂不生效
+# 设置绕开Tun接管的IP地址
+BypassIP:
+  # 是否启用
+  enable: true
+  # 启用的模式，支持url或file
+  mode: file
+  # url模式，target填写目标文件url地址
+  # file模式，target填写文件名。该文件需置于TunMax.exe所在的目录下，仅支持txt。
+  target: bypassip.txt
