@@ -15,7 +15,7 @@ Gateway: 192.168.1.1
 # 设置绕开Tun接管的IP地址
 BypassIP:
   # 是否启用
-  enable: true
+  enable: false
   # 启用的模式，支持url或file
   mode: file
   # url模式，target填写目标文件url地址
