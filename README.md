@@ -11,7 +11,7 @@ A simple gui for tun on Windows.
 
 ## 使用介绍
 
-通过配置 **config.yaml**，运行 TunMax，可以轻松地开启tun设备接管所有的`TCP/UDP`流量。
+通过配置 **config.yaml**，运行 TunMax，可以轻松地开启tun设备接管本机所有的`TCP/UDP`流量，使游戏、UWP等不能被系统代理的应用也能被代理到，实现真正的“**全局代理**”模式。
 
 ```yaml
 # 与Tun设备出口对接的代理地址，支持：socks5、shadowsocks
