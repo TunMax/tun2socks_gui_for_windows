@@ -56,4 +56,4 @@ Tips：v2rayN客户端默认开启了UDP支持，不需要特殊设置。vmess�
 
 ## 特别感谢
 
-[xjasonlyu/tun2socks](https://github.com/Dreamacro/clash) tun2socks - powered by gVisor TCP/IP stack
+[xjasonlyu/tun2socks](https://github.com/xjasonlyu/tun2socks) tun2socks - powered by gVisor TCP/IP stack
