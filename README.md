@@ -34,7 +34,7 @@ Gateway: 192.168.1.1
 
 ### 1. 与Tun设备出口对接的代理地址为本机代理软件监听地址时，代理软件不要设置任何直连规则，否则会造成连接死循环。
 
-原因：以使用TunMax配合v2rayN使其实现tun模式为例，开启tun后，tun会接管了本机 <u>所有</u><font color=#FF0000>*</font> 的`TCP/UDP`连接。如果在v2rayN设置了 baidu.com 直连规则，浏览器访问baidu.com，发起对baidu.com的连接，该连接被tun截获接管，tun将其发给v2rayN处理，v2rayN根据规则对baidu.com发起直连，这个直连连接会被tun截获接管，tun又将该连接发给v2rayN，v2rayN又发起直连，造成死循环。
+原因：以使用TunMax配合v2rayN使其实现tun模式为例，开启tun后，tun接管了本机 <u>所有</u><font color=#FF0000>*</font> 的`TCP/UDP`连接。如果在v2rayN设置了 baidu.com 直连规则，浏览器访问baidu.com，发起对baidu.com的连接，该连接被tun截获接管，tun将其发给v2rayN处理，v2rayN根据规则对baidu.com发起直连，这个直连连接又会被tun截获接管，tun又将该连接发给v2rayN，v2rayN又发起直连，造成死循环。
 
 <u>所有</u><font color=#FF0000>*</font>：不包括在`config.yaml`中`Server`项设置的ip和本地局域网的ip段。
 
