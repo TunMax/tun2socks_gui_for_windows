@@ -1,5 +1,5 @@
 # TunMax
-A simple gui for tun on Windows.
+A simple gui for tun2socks on Windows.
 
 配合v2ray、ss等客户端(eg. v2rayN)，可使其实现tun模式。
 
