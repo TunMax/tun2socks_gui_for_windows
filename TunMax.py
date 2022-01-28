@@ -4,7 +4,7 @@ import wx
 import wx.adv
 import multiprocessing, os, time, yaml, socket
 import win32gui, win32con, ctypes
-import Logo, BypassIP
+import Logo
 import subprocess
 
 
@@ -26,7 +26,7 @@ def start_tun(Proxy):
     cmd_run_lite('start tun2socks -device tun://TunMax -proxy {}'.format(Proxy.strip()))
 
 
-def set_tun_route():
+def set_tun_route(mode, iplist):
     while True:
         try:
             tmp = cmd_run('ipconfig')
@@ -35,18 +35,33 @@ def set_tun_route():
                 break
         except:
             print('finding tun device...')
-    cmd_run_lite(
-        'netsh interface ip set address TunMax static 10.0.68.10 255.255.255.0 10.0.68.1 && route add 0.0.0.0 mask 0.0.0.0 10.0.68.1 metric 3')
+    if mode == 'full':
+        cmd_run_lite('netsh interface ip set address TunMax static 10.0.68.10 255.255.255.0 10.0.68.1 3')  # 3是metric
+    else:
+        cmd_run_lite('netsh interface ip set address TunMax static 10.0.68.10 255.255.255.0 10.0.68.1 9999')
+        while True:
+            try:
+                tmp = cmd_run('ipconfig')
+                time.sleep(0.1)
+                if '10.0.68.10' in tmp:
+                    break
+            except:
+                print('waiting for TunMax to start completely')
+        tmp = []
+        for x in iplist:
+            tmp.append("route add {} mask 255.255.255.255 10.0.68.1 metric 3".format(x))
+        cmd_run_lite(' & '.join(tmp))
 
 
 def del_route():
-    cmd_list = ['route delete 0.0.0.0 mask 0.0.0.0 10.0.68.1']
-    for ip in server_name:
-        cmd_list.append('route delete {} {}'.format(ip, config['Gateway']))
+    cmd_list = ['route delete 0.0.0.0 10.0.68.1']
+    if config['Mode'] == 'expert':
+        for ip in ExpertIP:
+            cmd_list.append('route delete {} 10.0.68.1'.format(ip))
+    else:
+        for ip in server_name:
+            cmd_list.append('route delete {} {}'.format(ip, config['Gateway']))
     cmd_run_lite(' & '.join(cmd_list))
-    # if config['BypassIP']['enable'] == True:
-    #     for x, y in bypass_ip_list:
-    #         cmd_run_lite('route delete {} mask {} {}'.format(x, y, config['Gateway']))
 
 
 def dnsQuery(url):
@@ -76,7 +91,7 @@ class FolderBookmarkTaskBarIcon(wx.adv.TaskBarIcon):
         '''生成菜单'''
 
         menu = wx.Menu()
-        menu.Append(self.MENU_ID1, 'TunMax v0.1.2')
+        menu.Append(self.MENU_ID1, 'TunMax v0.1.3')
         menu.Append(self.MENU_ID2, '显示/隐藏控制台')
         menu.Append(self.MENU_ID3, '退出')
         return menu
@@ -91,8 +106,11 @@ class FolderBookmarkTaskBarIcon(wx.adv.TaskBarIcon):
             win32gui.ShowWindow(hwnd, win32con.SW_SHOWNORMAL)
 
     def onExit(self, event):
-        win32gui.PostMessage(hwnd, win32con.WM_CLOSE, 0, 0)
-        del_route()
+        try:
+            win32gui.PostMessage(hwnd, win32con.WM_CLOSE, 0, 0)
+            del_route()
+        except:
+            pass
         wx.Exit()
 
 
@@ -102,16 +120,6 @@ class MyFrame(wx.Frame):
         FolderBookmarkTaskBarIcon()
 
 
-def add_bypassip_route(ip_list, gateway):
-    for x, y in ip_list:
-        cmd_run_lite('route add {} mask {} {}'.format(x, y, gateway))
-
-
-def delete_bypassip_route(ip_list, gateway):
-    for x, y in ip_list:
-        cmd_run_lite('route delete {} mask {} {}'.format(x, y, gateway))
-
-
 if __name__ == "__main__":
     multiprocessing.freeze_support()  # 解决pyinstaller打包后多进程模块无法工作
     app = wx.App()
@@ -119,39 +127,22 @@ if __name__ == "__main__":
         wx.MessageBox('未以管理员身份运行，程序无法正常工作！', '注意', wx.OK | wx.ICON_WARNING)
         sys.exit()
     # 读取yaml配置
-    server_name = []
     with open('config.yaml', 'r', encoding='utf8') as f:
         config = yaml.load(f.read(), Loader=yaml.FullLoader)
-    cmd_set_route = []
     # 解释直连域名ip
-    for x in config['Server']:
-        print('进入')
-        if x.replace('.', '').isdigit():
-            server_name += [x]
-            cmd_set_route.append('route add {} {} metric 5'.format(x, config['Gateway']))
-        else:
-            ips = dnsQuery(x)
-            server_name += ips
-            for ip in ips:
-                cmd_set_route.append('route add {} {} metric 5'.format(ip, config['Gateway']))
-    cmd_run_lite(' & '.join(cmd_set_route))
-    # 绕开Tun接管的IP地址的路由设置
-    config['BypassIP']['enable'] = False  # ！！！因未解决添加路由表性能问题，该项暂不生效
-    if config['BypassIP']['enable'] == True:
-        if config['BypassIP']['mode'] == 'url':
-            bypass_ip_list = BypassIP.getIP(config['BypassIP']['mode'], config['BypassIP']['target'])
-        else:
-            bypass_ip_list = BypassIP.getIP(config['BypassIP']['mode'], file_path(config['BypassIP']['target']))
-        pool = multiprocessing.Pool(6)
-        n, t1 = 0, time.time()
-        for i in range(0, 120, 20):
-            # pool.apply_async(add_bypassip_route, args=(bypass_ip_list[i:i + 20], config['Gateway']))
-            pool.apply_async(delete_bypassip_route, args=(bypass_ip_list[i:i + 20], config['Gateway']))
-        pool.close()
-        pool.join()
-        print(time.time() - t1)
-        sys.exit()
-        input('调试')
+    if config['Mode'] == 'full':
+        server_name = []
+        cmd_set_route = []
+        for x in config['Server']:
+            if x.replace('.', '').isdigit():
+                server_name += [x]
+                cmd_set_route.append('route add {} {} metric 5'.format(x, config['Gateway']))
+            else:
+                ips = dnsQuery(x)
+                server_name += ips
+                for ip in ips:
+                    cmd_set_route.append('route add {} {} metric 5'.format(ip, config['Gateway']))
+        cmd_run_lite(' & '.join(cmd_set_route))
     # 启动Tun设备
     multiprocessing.Process(target=start_tun, args=(config['Proxy'],)).start()
     while True:
@@ -162,7 +153,17 @@ if __name__ == "__main__":
             win32gui.ShowWindow(hwnd, win32con.SW_SHOWNORMAL)
             win32gui.ShowWindow(hwnd, win32con.SW_HIDE)
             break
-    set_tun_route()
+    # expert模式设置
+    ExpertIP = []
+    if config['Mode'] == 'expert':
+        for x in config['ExpertIP']:
+            if x.replace('.', '').isdigit():
+                ExpertIP.append(x)
+            else:
+                ips = dnsQuery(x)
+                for ip in ips:
+                    ExpertIP.append(ip)
+    set_tun_route(config['Mode'], ExpertIP)
     # Then a frame.
     frm = MyFrame()
     # Show it.
