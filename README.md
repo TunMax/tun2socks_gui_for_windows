@@ -7,7 +7,7 @@ A simple gui for tun2socks on Windows.
 [![Releases][2]](https://github.com/TunMax/tun_gui_for_windows/releases)
 
 [1]: https://img.shields.io/badge/license-GPL%203.0-blue
-[2]: https://img.shields.io/badge/releases-v0.1.2-green
+[2]: https://img.shields.io/badge/releases-v0.1.3-green
 
 ## 使用介绍
 
