@@ -18,11 +18,21 @@ A simple gui for tun2socks on Windows.
 # 示例：socks5://127.0.0.1:10808、ss://chacha20:password@104.67.88.90:1080
 Proxy: socks5://127.0.0.1:10808
 
+# 可选两种模式，full与expert
+# full模式：默认模式，除Server项目设置的地址和本地局域网ip直连，其他流量均走tun
+# expert模式：除ExpertIP设置的地址走tun，其他流量均直连。
+Mode: full
+
 # 实际代理服务器的域名或IP，可以填写多个，如为域名程序会自动解析其IP地址。
 # 该项用于添加路由表直连规则。
 Server: 
   - yourserver.com
   - 104.67.88.90
+
+# 启用expert模式时生效
+ExpertIP:
+  - ip138.com
+  - 192.168.1.26
 
 # 本地路由器的网关，即登陆路由器管理页面的IP地址。
 Gateway: 192.168.1.1
