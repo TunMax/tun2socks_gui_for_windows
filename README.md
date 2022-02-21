@@ -67,3 +67,5 @@ Windows 7、8、10、11
 ## 特别感谢
 
 [xjasonlyu/tun2socks](https://github.com/xjasonlyu/tun2socks) tun2socks - powered by gVisor TCP/IP stack
+
+[WireGuard/wintun](https://github.com/WireGuard/wintun) wintun - TUN Device Driver for Windows
