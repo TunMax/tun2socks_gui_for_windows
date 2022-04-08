@@ -8,15 +8,20 @@ Proxy: socks5://127.0.0.1:10808
 Mode: full
 
 # 实际代理服务器的域名或IP，可以填写多个，如为域名程序会自动解析其IP地址。
-# 该项用于添加路由表直连规则。
+# 该项也用于添加路由表直连规则，属于以下域名或IP的流量均直连，不经过tun。
 Server: 
   - yourserver.com
   - 104.67.88.90
 
-# 启用expert模式时生效
+# 因为full模式下，本地局域网ip默认会直连。如需使其强制走tun，将以下enable值改为true，并填写强制走tun的局域网ip。
+# 开启以下配置后，无论是full模式还是expert模式，填写的局域网ip都会走tun。
+ProxyLanIP:
+  enable: false
+  IP:
+    - 192.168.1.1
+    - 192.168.1.2
+
+# 使用expert模式时生效
 ExpertIP:
   - ip138.com
   - 192.168.1.26
-
-# 本地路由器的网关，即登陆路由器管理页面的IP地址。
-Gateway: 192.168.1.1

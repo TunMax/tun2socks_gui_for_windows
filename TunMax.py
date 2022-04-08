@@ -6,6 +6,7 @@ import multiprocessing, os, time, yaml, socket
 import win32gui, win32con, ctypes
 import Logo
 import subprocess
+import re
 
 
 def cmd_run(cmd):
@@ -37,6 +38,14 @@ def set_tun_route(mode, iplist):
             print('finding tun device...')
     if mode == 'full':
         cmd_run_lite('netsh interface ip set address TunMax static 10.0.68.10 255.255.255.0 10.0.68.1 3')  # 3是metric
+        while True:
+            try:
+                tmp = cmd_run('ipconfig')
+                time.sleep(0.1)
+                if '10.0.68.10' in tmp:
+                    break
+            except:
+                print('waiting for TunMax to start completely')
     else:
         cmd_run_lite('netsh interface ip set address TunMax static 10.0.68.10 255.255.255.0 10.0.68.1 9999')
         while True:
@@ -51,6 +60,11 @@ def set_tun_route(mode, iplist):
         for x in iplist:
             tmp.append("route add {} mask 255.255.255.255 10.0.68.1 metric 3".format(x))
         cmd_run_lite(' & '.join(tmp))
+    if config['ProxyLanIP']['enable'] == True:
+        tmp = []
+        for x in config['ProxyLanIP']['IP']:
+            tmp.append("route add {} mask 255.255.255.255 10.0.68.1 metric 3".format(x))
+        cmd_run_lite(' & '.join(tmp))
 
 
 def del_route():
@@ -62,6 +76,11 @@ def del_route():
         for ip in server_name:
             cmd_list.append('route delete {} {}'.format(ip, config['Gateway']))
     cmd_run_lite(' & '.join(cmd_list))
+    if config['ProxyLanIP']['enable'] == True:
+        tmp = []
+        for x in config['ProxyLanIP']['IP']:
+            tmp.append("route delete {} {}".format(x, config['Gateway']))
+        cmd_run_lite(' & '.join(tmp))
 
 
 def dnsQuery(url):
@@ -89,9 +108,8 @@ class FolderBookmarkTaskBarIcon(wx.adv.TaskBarIcon):
 
     def CreatePopupMenu(self):
         '''生成菜单'''
-
         menu = wx.Menu()
-        menu.Append(self.MENU_ID1, 'TunMax v0.1.3')
+        menu.Append(self.MENU_ID1, 'TunMax v0.1.4')
         menu.Append(self.MENU_ID2, '显示/隐藏控制台')
         menu.Append(self.MENU_ID3, '退出')
         return menu
@@ -108,6 +126,9 @@ class FolderBookmarkTaskBarIcon(wx.adv.TaskBarIcon):
     def onExit(self, event):
         try:
             win32gui.PostMessage(hwnd, win32con.WM_CLOSE, 0, 0)
+        except:
+            pass
+        try:
             del_route()
         except:
             pass
@@ -129,6 +150,10 @@ if __name__ == "__main__":
     # 读取yaml配置
     with open('config.yaml', 'r', encoding='utf8') as f:
         config = yaml.load(f.read(), Loader=yaml.FullLoader)
+    # 自动获取当前默认网关
+    routeInfo = cmd_run('route print')
+    Gateway = re.findall('0\.0\.0\.0.*?0\.0\.0\.0.*?(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})', routeInfo)[0]
+    config['Gateway'] = Gateway
     # 解释直连域名ip
     if config['Mode'] == 'full':
         server_name = []
