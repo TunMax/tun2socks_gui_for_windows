@@ -49,15 +49,15 @@ ExpertIP:
 
 ### 1. 与Tun设备出口对接的代理地址为本机代理软件监听地址时，代理软件不要设置任何直连规则，否则会造成连接死循环。
 
-原因：以使用TunMax配合v2rayN使其实现tun模式为例，开启tun后，tun接管了本机 [所有*]() 的`TCP/UDP`连接。如果在v2rayN设置了 baidu.com 直连规则，浏览器访问baidu.com，发起对baidu.com的连接，该连接被tun截获接管，tun将其发给v2rayN处理，v2rayN根据规则对baidu.com发起直连，这个直连连接又会被tun截获接管，tun又将该连接发给v2rayN，v2rayN又发起直连，造成死循环。
+原因：以使用TunMax配合v2rayN使其实现tun模式为例，开启tun后，tun接管了本机 [所有*](#) 的`TCP/UDP`连接。如果在v2rayN设置了 baidu.com 直连规则，浏览器访问baidu.com，发起对baidu.com的连接，该连接被tun截获接管，tun将其发给v2rayN处理，v2rayN根据规则对baidu.com发起直连，这个直连连接又会被tun截获接管，tun又将该连接发给v2rayN，v2rayN又发起直连，造成死循环。
 
-[所有*]()：不包括在`config.yaml`中`Server`项设置的ip和本地局域网的ip段。
+[所有*](#)：不包括在`config.yaml`中`Server`项设置的ip和本地局域网的ip段。
 
 ### 2. 本地代理软件和远程代理服务器开启UDP支持，否则会出现打不开网页的情况。
 
-原因：tun接管了本机 [所有*]() 的`TCP/UDP`连接，包括DNS查询的UDP流量，如果本地代理软件和远程服务器没有开启UDP支持，就无法进行UDP流量转发完成DNS查询，域名无法解析为ip，造成打不开网页的情况。
+原因：tun接管了本机 [所有*](#) 的`TCP/UDP`连接，包括DNS查询的UDP流量，如果本地代理软件和远程服务器没有开启UDP支持，就无法进行UDP流量转发完成DNS查询，域名无法解析为ip，造成打不开网页的情况。
 
-[所有*]()：不包括在`config.yaml`中`Server`项设置的ip和本地局域网的ip段。
+[所有*](#)：不包括在`config.yaml`中`Server`项设置的ip和本地局域网的ip段。
 
 Tips：v2rayN客户端默认开启了UDP支持，不需要特殊设置。vmess、vless协议的代理默认开启了UDP支持，不需要特殊设置。
 
