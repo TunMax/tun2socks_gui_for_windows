@@ -113,7 +113,7 @@ class FolderBookmarkTaskBarIcon(wx.adv.TaskBarIcon):
     def CreatePopupMenu(self):
         '''生成菜单'''
         menu = wx.Menu()
-        menu.Append(self.MENU_ID1, 'TunMax v0.1.4')
+        menu.Append(self.MENU_ID1, 'TunMax v0.1.5')
         menu.Append(self.MENU_ID2, '显示/隐藏控制台')
         menu.Append(self.MENU_ID3, '退出')
         return menu
