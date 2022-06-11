@@ -149,7 +149,7 @@ if __name__ == "__main__":
     multiprocessing.freeze_support()  # 解决pyinstaller打包后多进程模块无法工作
     app = wx.App()
     if ctypes.windll.shell32.IsUserAnAdmin() != 1:
-        wx.MessageBox('未以管理员身份运行，程序无法正常工作！', '注意', wx.OK | wx.ICON_WARNING)
+        wx.MessageBox('未以管理员身份运行，程序无法正常启动Tun设备！', '注意', wx.OK | wx.ICON_WARNING)
         sys.exit()
     # 读取yaml配置
     with open('config.yaml', 'r', encoding='utf8') as f:
