@@ -7,6 +7,7 @@ import win32gui, win32con, ctypes
 import Logo
 import subprocess
 import re
+import requests
 
 
 def cmd_run(cmd):
@@ -84,8 +85,11 @@ def del_route():
 
 
 def dnsQuery(url):
-    res = socket.getaddrinfo(url, None)
-    return [x[4][0] for x in res]
+    # res = socket.getaddrinfo(url, None) # 通过本机设置的DNS服务器获取域名IP
+    # return [x[4][0] for x in res]
+    res = requests.get(f'https://dns.alidns.com/resolve?name={url}')  # 阿里DNS的DoH接口
+    # 其他DoH查询API记录：http://119.29.29.29/d?dn=www.baidu.com
+    return [i['data'] for i in res.json()['Answer']]
 
 
 class FolderBookmarkTaskBarIcon(wx.adv.TaskBarIcon):
@@ -161,10 +165,12 @@ if __name__ == "__main__":
         for x in config['Server']:
             if x.replace('.', '').isdigit():
                 server_name += [x]
+                server_name = list(set(server_name))
                 cmd_set_route.append('route add {} {} metric 5'.format(x, config['Gateway']))
             else:
                 ips = dnsQuery(x)
                 server_name += ips
+                server_name = list(set(server_name))
                 for ip in ips:
                     cmd_set_route.append('route add {} {} metric 5'.format(ip, config['Gateway']))
         cmd_run_lite(' & '.join(cmd_set_route))
@@ -184,10 +190,12 @@ if __name__ == "__main__":
         for x in config['ExpertIP']:
             if x.replace('.', '').isdigit():
                 ExpertIP.append(x)
+                ExpertIP = list(set(ExpertIP))
             else:
                 ips = dnsQuery(x)
                 for ip in ips:
                     ExpertIP.append(ip)
+                    ExpertIP = list(set(ExpertIP))
     set_tun_route(config['Mode'], ExpertIP)
     # Then a frame.
     frm = MyFrame()

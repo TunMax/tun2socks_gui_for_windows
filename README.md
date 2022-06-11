@@ -7,15 +7,16 @@ A simple gui for tun2socks on Windows.
 [![Releases][2]](https://github.com/TunMax/tun_gui_for_windows/releases)
 
 [1]: https://img.shields.io/badge/license-GPL%203.0-blue
-[2]: https://img.shields.io/badge/releases-v0.1.3-green
+[2]: https://img.shields.io/badge/releases-v0.1.5-green
 
 ## 使用介绍
 
-通过配置 **config.yaml**，运行 TunMax，可以轻松地开启tun设备接管本机所有的`TCP/UDP`流量，使游戏、UWP等不能被系统代理的应用也能被代理到，实现真正的“**全局代理**”模式。
+通过配置 **config.yaml**，运行 TunMax，可以轻松地开启tun设备接管本机所有的`TCP/UDP`流量，使游戏、UWP等不能被系统代理的应用也能被代理到，实现真正的 **全局代理** 模式。
 
 ```yaml
 # 与Tun设备出口对接的代理地址，支持：socks5、shadowsocks
 # 示例：socks5://127.0.0.1:10808、ss://chacha20:password@104.67.88.90:1080
+# 注意：如果以下是本机监听的地址，开启这个监听地址的软件一定要使用全局规则(Global Mode)，否则会引起死循环。关于死循环的解释，参见本项目的README.md
 Proxy: socks5://127.0.0.1:10808
 
 # 可选两种模式，full与expert
@@ -29,18 +30,19 @@ Server:
   - yourserver.com
   - 104.67.88.90
 
-# 因为full模式下，本地局域网ip默认会直连。如需使其强制走tun，将以下enable值改为true，并填写强制走tun的局域网ip。
-# 开启以下配置后，无论是full模式还是expert模式，填写的局域网ip都会走tun。
-ProxyLanIP:
-  enable: false
-  IP:
-    - 192.168.1.1
-    - 192.168.1.2
-
 # 使用expert模式时生效
 ExpertIP:
   - ip138.com
   - 192.168.1.26
+
+# [可选功能]
+# 因为full模式下，本地局域网ip默认会直连。如需使其强制走tun，将以下enable值改为true，并填写强制走tun的局域网ip。
+# 开启以下配置后，无论是full模式还是expert模式，填写的局域网ip都会走tun。注：以下仅可填写ip，不支持填写域名。
+ProxyLanIP:
+  enable: false
+  IP:
+    - 192.168.1.10
+    - 192.168.1.11
 ```
 ## 注意事项
 开启tun后，除在`config.yaml`中`Server`项设置的ip和本地局域网的ip段，其他所有ip的`TCP/UDP`连接都会被tun设备接管。

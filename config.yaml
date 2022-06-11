@@ -1,5 +1,6 @@
 # 与Tun设备出口对接的代理地址，支持：socks5、shadowsocks
 # 示例：socks5://127.0.0.1:10808、ss://chacha20:password@104.67.88.90:1080
+# 注意：如果以下是本机监听的地址，开启这个监听地址的软件一定要使用全局规则(Global Mode)，否则会引起死循环。关于死循环的解释，参见本项目的README.md
 Proxy: socks5://127.0.0.1:10808
 
 # 可选两种模式，full与expert
@@ -13,15 +14,16 @@ Server:
   - yourserver.com
   - 104.67.88.90
 
-# 因为full模式下，本地局域网ip默认会直连。如需使其强制走tun，将以下enable值改为true，并填写强制走tun的局域网ip。
-# 开启以下配置后，无论是full模式还是expert模式，填写的局域网ip都会走tun。
-ProxyLanIP:
-  enable: false
-  IP:
-    - 192.168.1.1
-    - 192.168.1.2
-
 # 使用expert模式时生效
 ExpertIP:
   - ip138.com
   - 192.168.1.26
+
+# [可选功能]
+# 因为full模式下，本地局域网ip默认会直连。如需使其强制走tun，将以下enable值改为true，并填写强制走tun的局域网ip。
+# 开启以下配置后，无论是full模式还是expert模式，填写的局域网ip都会走tun。注：以下仅可填写ip，不支持填写域名。
+ProxyLanIP:
+  enable: false
+  IP:
+    - 192.168.1.10
+    - 192.168.1.11
